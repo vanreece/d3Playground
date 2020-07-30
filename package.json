@@ -1,0 +1,22 @@
+{
+  "devDependencies": {
+    "live-server": "^1.2.1",
+    "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "@types/d3": "^5.7.2",
+    "commonjs": "^0.0.1",
+    "concurrently": "^5.2.0",
+    "d3": "^5.16.0",
+    "node": "^14.5.0"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "live-server": "live-server",
+    "build": "yarn run tsc",
+    "watch": "yarn run build -w",
+    "start": "yarn run live-server",
+    "watchAndStart": "concurrently \"yarn run watch\" \"yarn run start\"",
+    "buildAndStart": "concurrently \"yarn run build\" \"yarn run start\""
+  }
+}
