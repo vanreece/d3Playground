@@ -1,0 +1,23 @@
+@keyframes dasblinkenlights {
+    from { background: inherit; }
+    to   { background: orange; }
+}
+
+/* button.background-favorite-button.active .icon{
+    fill-opacity: inherit;
+} */
+
+/* li{
+    animation: 0.5s ease-in-out 0s alternate 2 dasblinkenlights;
+} */
+
+li.blinkenlights{
+    animation: 0.5s ease-in-out 0s alternate 2 dasblinkenlights;
+}
+
+li.blinkenlightsoff{
+    animation: 0.5s ease-in-out 0s alternate 2 dasblinkenlights;
+}
+/* button.background-favorite-button.active{
+    background: transparent;
+} */

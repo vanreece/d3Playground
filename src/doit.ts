@@ -18,8 +18,8 @@ type datum = {
 }
 
 const data: datum[] = [
-    {'name': 'traitor', best: true},
-    {'name': 'pianist', best: false},
+    {'name': 'traitor(best)', best: true},
+    {'name': 'pianist(not best)', best: false},
     {'name': 'nondefinitive'},
     {'name': 'combinedly'},
     {'name': 'predelivery'},
@@ -47,14 +47,38 @@ async function doit() {
 
     const listElements = list.selectAll('li').data(data);
     listElements
-        // .text(function(d) {return `Existing: ${d.name}`})
-        .text(function(d) {return `${d.name}`})
-        .enter()
+        .text(function(d) {return `Name: ${d.name}  `})
 
     listElements.enter()
         .append('li')
-        // .text(function(d) {return `New: ${d.name}`})
-        .text(function(d) {return `${d.name}`})
+        .text(function(d) {return `Name: ${d.name}  `})
+        .append('button') 
+            .attr('class', 'background-favorite-button')
+            .attr('title', 'Rocks')
+            .attr('tabindex', -1)
+            .text('Favorite')
+            .on('click', function(d) {
+                // Appropriately tag the favorites
+                if (d.favorite) {
+                    d.favorite = false;
+                } else {
+                    d.favorite = true;
+                }
+                // Sort based on the new world order
+                list.selectAll('li').sort(sortSources);
+
+                // Flash the things that change
+                const parentElement = this.parentElement;
+                if (!parentElement) {
+                    return;
+                }
+                const selection = d3.select(this.parentElement);
+                selection.transition()
+                    .style("background-color", "orange")
+                    .transition()
+                        .style("background-color", null)
+
+            })
 
     listElements.exit()
         .remove()
