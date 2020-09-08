@@ -75,8 +75,12 @@ async function doit() {
                 const selection = d3.select(this.parentElement);
                 selection.transition()
                     .style("background-color", "orange")
+                    .duration(300)
+                    .ease(d3.easeCubicInOut)
                     .transition()
                         .style("background-color", null)
+                        .ease(d3.easeCubicInOut)
+                        .duration(300)
 
             })
 
