@@ -88,6 +88,97 @@ async function doit() {
         .remove()
     
     list.selectAll('li').sort(sortSources);
+
+    let _minVal = -1;
+    let _maxVal = 1;
+    let _initialVal = 0;
+    let _step = 0.01;
+    let _value = _initialVal;
+    let _blueOnLeft = true;
+    let _lowOnLeft = true;
+
+    // Add slider
+    selection
+        .append('h5')
+        .text('Value: ')
+        .append('span')
+        .attr('class', 'display-option-value');
+    
+    function updateValue(newValue: number) {
+        _value = newValue;
+        selection.selectAll('.display-option-value')
+            .text(function() {
+                return Math.round(_value * 100) / 100;
+            });
+
+    }
+
+    function updateBlueOnLeft(blueOnLeft: boolean) {
+        _blueOnLeft = blueOnLeft;
+
+        selection.selectAll('.rangeSlider')
+            .style('direction', function() {
+                return _blueOnLeft ? null : "rtl";
+            });
+    }
+
+    function updateLowOnLeft(lowOnLeft: boolean) {
+        _lowOnLeft = lowOnLeft;
+
+        if (_lowOnLeft) {
+            selection.selectAll('.rangeSlider')
+                .attr('min', _minVal)
+                .attr('max', _maxVal);
+        } else {
+            selection.selectAll('.rangeSlider')
+                .attr('min', _maxVal)
+                .attr('max', _minVal);
+        }
+    }
+
+    selection
+        .append('span')
+        .text('Blue on left: ')
+        .append('input')
+        .attr('type', 'checkbox')
+        .attr('checked', 'true')
+        .on('input', function() {
+            updateBlueOnLeft(d3.select(this).property('checked'));
+        });
+
+    selection
+        .append('br');
+
+    selection
+        .append('span')
+        .text('Low on left: ')
+        .append('input')
+        .attr('type', 'checkbox')
+        .attr('checked', 'true')
+        .on('input', function() {
+            updateLowOnLeft(d3.select(this).property('checked'));
+        });
+
+    selection
+        .append('br');
+
+    selection
+        .append('span')
+        .text('Range slider:')
+        .append('input')
+        .attr('type', 'range')
+        // .attr('min', _minVal)
+        // .attr('max', _maxVal)
+        .attr('step', _step)
+        .attr('class', 'rangeSlider')
+        .property('value', _value)
+        .on('input', function() {
+            updateValue(d3.select(this).property('value'));
+        });
+    
+    updateBlueOnLeft(_blueOnLeft);
+    updateLowOnLeft(_lowOnLeft);
+    updateValue(_value);
 }
   
 init();
