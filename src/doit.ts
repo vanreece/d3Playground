@@ -31,17 +31,9 @@ const data: datum[] = [
     {'name': 'preoccipital'},
 ]
 
-async function toggleFavorite(index: number) {
-    if(data[index].favorite) {
-        data[index].favorite = false;
-    } else {
-        data[index].favorite = true;
-    }
-    doit();
-}
-
-async function doit() {
+function favoritesList() {
     const selection = d3.select('#wrapper');
+    selection.selectAll('ol').data([0]).enter().append('ol');
     const list = selection.selectAll('ol');
 
 
@@ -88,14 +80,19 @@ async function doit() {
         .remove()
     
     list.selectAll('li').sort(sortSources);
+}
 
-    let _minVal = -1;
+function rangeSlider() {
+    const selection = d3.select('#wrapper');
+
+    let _minVal = 0;
     let _maxVal = 1;
     let _initialVal = 0;
-    let _step = 0.01;
+    let _step = 0.1;
     let _value = _initialVal;
     let _blueOnLeft = true;
     let _lowOnLeft = true;
+    const _sliderToValue = d3.scaleLinear().domain([0,1]).range([-1,1]).clamp(true);
 
     // Add slider
     selection
@@ -104,36 +101,33 @@ async function doit() {
         .append('span')
         .attr('class', 'display-option-value');
     
-    function updateValue(newValue: number) {
-        _value = newValue;
+    function updateSliderUI() {
+        const slider = d3.select('.rangeSlider');
+
+        // Update the value from existing slider scale
+        _value = _sliderToValue(slider.property('value'));
+
+        // Update the scale
+        if (_lowOnLeft !== _blueOnLeft) {
+            _sliderToValue.range([_maxVal, _minVal])
+        } else {
+            _sliderToValue.range([_minVal, _maxVal])
+        }
+        
+        // Update slider 
+        slider
+            .style('direction', function() {
+                return _blueOnLeft ? null : "rtl";
+            });
+
+        slider.attr('step', _step);
+        slider.property('value', _sliderToValue.invert(_value));
+
+        // Update the display
         selection.selectAll('.display-option-value')
             .text(function() {
                 return Math.round(_value * 100) / 100;
             });
-
-    }
-
-    function updateBlueOnLeft(blueOnLeft: boolean) {
-        _blueOnLeft = blueOnLeft;
-
-        selection.selectAll('.rangeSlider')
-            .style('direction', function() {
-                return _blueOnLeft ? null : "rtl";
-            });
-    }
-
-    function updateLowOnLeft(lowOnLeft: boolean) {
-        _lowOnLeft = lowOnLeft;
-
-        if (_lowOnLeft) {
-            selection.selectAll('.rangeSlider')
-                .attr('min', _minVal)
-                .attr('max', _maxVal);
-        } else {
-            selection.selectAll('.rangeSlider')
-                .attr('min', _maxVal)
-                .attr('max', _minVal);
-        }
     }
 
     selection
@@ -143,7 +137,8 @@ async function doit() {
         .attr('type', 'checkbox')
         .attr('checked', 'true')
         .on('input', function() {
-            updateBlueOnLeft(d3.select(this).property('checked'));
+            _blueOnLeft = d3.select(this).property('checked');
+            updateSliderUI();
         });
 
     selection
@@ -156,7 +151,52 @@ async function doit() {
         .attr('type', 'checkbox')
         .attr('checked', 'true')
         .on('input', function() {
-            updateLowOnLeft(d3.select(this).property('checked'));
+            _lowOnLeft = d3.select(this).property('checked');
+            updateSliderUI();
+        });
+
+    selection
+        .append('br');
+
+    selection
+        .append('span')
+        .text('Min Value: ')
+        .append('input')
+        .attr('type', 'text')
+        .attr('value', _minVal)
+        .on('change', function() {
+            _minVal = d3.select(this).property('value');
+            updateSliderUI();
+        });
+
+    selection
+        .append('br');
+       
+    selection
+        .append('span')
+        .text('Max Value: ')
+        .append('input')
+        .attr('type', 'text')
+        .attr('value', _maxVal)
+        .on('change', function() {
+            _maxVal = d3.select(this).property('value');
+            updateSliderUI();
+        });
+
+    selection
+        .append('br');
+
+    selection
+        .append('span')
+        .text('Resolution: ')
+        .append('input')
+        .attr('type', 'text')
+        .attr('value', 0.1)
+        .on('change', function() {
+            const fullRange = _maxVal - _minVal;
+            const stepCount = fullRange / d3.select(this).property('value');
+            _step = 1 / (stepCount);
+            updateSliderUI();
         });
 
     selection
@@ -167,19 +207,20 @@ async function doit() {
         .text('Range slider:')
         .append('input')
         .attr('type', 'range')
-        // .attr('min', _minVal)
-        // .attr('max', _maxVal)
-        .attr('step', _step)
+        .attr('min', 0)
+        .attr('max', 1)
         .attr('class', 'rangeSlider')
-        .property('value', _value)
         .on('input', function() {
-            updateValue(d3.select(this).property('value'));
+            updateSliderUI();
         });
     
-    updateBlueOnLeft(_blueOnLeft);
-    updateLowOnLeft(_lowOnLeft);
-    updateValue(_value);
+    updateSliderUI();
+
+}
+
+async function doit() {
+    // favoritesList();
+    rangeSlider();
 }
   
-init();
 doit();
